@@ -29,3 +29,10 @@ References
 
     - `https://github.com/open5gs/open5gs <https://github.com/open5gs/open5gs>`_
 
+- **UHD and USRP Resources:**
+
+  - `Ettus Research - UHD Manual <https://files.ettus.com/manual/>`_
+
+- **Open5GS WebUI Installation Guide:**
+
+  - `Open5GS WebUI Installation <https://open5gs.org/open5gs/docs/guide/webui-install/>`_

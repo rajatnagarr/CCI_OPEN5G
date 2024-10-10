@@ -57,6 +57,15 @@ Install UHD
 
       uhd_find_devices
 
+   - **Example Output:**
+
+     .. image:: _static/image29.png
+        :alt: Output of uhd_find_devices command
+        :align: center
+        :width: 80%
+
+     *Figure: Output showing the connected USRP devices.*
+
 Install srsRAN 4G Suite
 -----------------------
 
@@ -93,29 +102,114 @@ Configure srsUE
 
       sudo srsran_install_configs.sh service
 
-   - The configuration files are typically installed in `/etc/srsran`.
+   - **Example Output:**
+
+     .. image:: _static/image23.png
+        :alt: Output of srsran_install_configs.sh service
+        :align: center
+        :width: 80%
+
+     *Figure: Output showing the installation of srsRAN configuration files.*
+
+   - **Note:** The configuration files are typically installed in `/etc/srsran`.
 
 2. **Edit `ue.conf`:**
 
-   - Open the `ue.conf` file:
+   The following changes need to be made to the UE configuration file to allow it to connect to the gNB in SA mode.
 
-     .. code-block:: bash
+   - **RF Settings:**
 
-        sudo vi /etc/srsran/ue.conf
+     - Under the `[rf]` section, update the parameters to configure the B210 optimally:
 
-   - Make the following changes to allow it to connect to the gNB in SA mode:
+       .. code-block:: ini
 
-     - **RF Settings:**
-       - Set the appropriate frequency bands.
-     - **USIM Settings:**
-       - Update `imsi`, `k`, `opc`, and `ue_ambr` with unique values.
-       - **Note:** Use different values to avoid conflicts with other users.
+          [rf]
+          freq_offset = 0
+          tx_gain = 50
+          rx_gain = 40
+          srate = 23.04e6
+          nof_antennas = 1
 
-   - Refer to the srsUE documentation for detailed configuration options:
+          device_name = uhd
+          #device_args = sync=external       # If using a reference clock, uncomment this line.
+          time_adv_nsamples = 300
 
-     `srsUE Configuration Guide <https://docs.srsran.com/projects/project/en/latest/tutorials/source/srsUE/source/index.html>`_
+   - **Disable LTE Carrier:**
 
-3. **Adjust System Buffers:**
+     - In the `[rat.eutra]` section, disable the LTE carrier to force the UE to use a 5G NR carrier:
+
+       .. code-block:: ini
+
+          [rat.eutra]
+          dl_earfcn = 2850
+          nof_carriers = 0
+
+   - **Configure 5G SA Mode:**
+
+     - In the `[rat.nr]` section, configure the settings for 5G SA mode operation:
+
+       .. code-block:: ini
+
+          [rat.nr]
+          bands = 3
+          nof_carriers = 1
+          max_nof_prb = 106
+          nof_prb = 106
+
+     - **Note:** The `max_nof_prb` and `nof_prb` parameters should be adapted based on the bandwidth (BW) used:
+
+       +--------+--------+
+       | **BW** | **PRBs** |
+       +========+========+
+       |   5    |   25   |
+       +--------+--------+
+       |   10   |   52   |
+       +--------+--------+
+       |   15   |   79   |
+       +--------+--------+
+       |   20   |  106   |
+       +--------+--------+
+
+   - **Set Release and UE Category:**
+
+     - In the `[rrc]` section:
+
+       .. code-block:: ini
+
+          [rrc]
+          release = 15
+          ue_category = 4
+
+   - **USIM Credentials:**
+
+     - Note that the following (default) USIM credentials are used in the `[usim]` section:
+
+       .. code-block:: ini
+
+          [usim]
+          mode = soft
+          algo = milenage
+          opc  = 63BFA50EE6523365FF14C1F45F88737D
+          k    = 00112233445566778899aabbccddeeff
+          imsi = 001010123456780
+          imei = 353490069873319
+
+   - **APN Configuration:**
+
+     - Enable the APN with the following settings in the `[nas]` section:
+
+       .. code-block:: ini
+
+          [nas]
+          apn = srsapn
+          apn_protocol = ipv4
+
+   - **Note:** Ensure that the `imsi`, `k`, `opc`, and other parameters match those configured in the Open5GS subscriber database. Use unique values to avoid conflicts with other users.
+
+Adjust System Buffers
+---------------------
+
+1. **Increase System Buffer Sizes:**
 
    .. code-block:: bash
 

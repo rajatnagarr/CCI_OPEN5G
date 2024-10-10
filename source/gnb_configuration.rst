@@ -56,6 +56,15 @@ Install UHD
 
       uhd_find_devices
 
+   - **Example Output:**
+
+     .. image:: _static/image25.png
+        :alt: Output of uhd_find_devices command on gNB VM
+        :align: center
+        :width: 50%
+
+     *Figure: Output showing the connected USRP devices on the gNB VM.*
+
 Install srsRAN gNB
 ------------------
 
@@ -88,17 +97,34 @@ Configure srsENB (gNB)
 
 2. **Copy and Edit Configuration File:**
 
-   - Create a copy of the existing `n310.conf` file for ease of use:
+   - Use the provided configuration files for the appropriate USRP model.
+
+   - For example, if you are using the X310 USRP, copy and edit the `gnb_rf_x310_fdd_n3_20mhz.yml` file:
 
      .. code-block:: bash
 
-        cp n310.conf my_gnb.conf
+        cp gnb_rf_x310_fdd_n3_20mhz.yml my_gnb.yml
+    - **Example:**
 
-   - Open `my_gnb.conf` for editing:
+       .. image:: _static/image21.png
+          :alt: Editing the my_gnb.yml configuration file
+          :align: center
+          :width: 80%
 
-     .. code-block:: bash
+     - Open `my_gnb.yml` for editing:
 
-        sudo vi my_gnb.conf
+       .. code-block:: bash
+
+          sudo vi x310.yml
+
+     - **Example:**
+
+       .. image:: _static/image27.png
+          :alt: Editing the my_gnb.yml configuration file
+          :align: center
+          :width: 80%
+
+       *Figure: Editing the gNB configuration file `my_gnb.yml`.*
 
 3. **Update Configuration Settings:**
 
@@ -112,7 +138,9 @@ Configure srsENB (gNB)
 
    - **Cell Configuration:**
 
-     - Change the `cell_id`, `mcc`, and `mnc` to unique values to avoid conflicts.
+     - Change the `cell_id`, `mcc`, and `mnc` to unique values to avoid conflicts with other users.
+
+       **Note:** Using unique identifiers prevents interference and conflicts, especially if multiple users are conducting experiments simultaneously.
 
 4. **Adjust System Buffers:**
 
@@ -130,7 +158,34 @@ Start the gNB
 
    .. code-block:: bash
 
-      sudo srseNB --enb.config_file=~/srsRAN_Project/configs/my_gnb.conf
+      sudo srseNB --enb.config_file=~/srsRAN_Project/configs/my_gnb.yml
 
    - Monitor the logs to ensure the gNB starts successfully and connects to the Open5GS core.
+
+**Note:** Ensure that the Open5GS core is running before starting the gNB.
+
+Verify Connectivity
+-------------------
+
+- **Ping Test:**
+
+  - From the gNB VM, ping the Open5GS core to verify network connectivity.
+
+    .. code-block:: bash
+
+       ping <CORE_VM_IP_ADDRESS>
+
+- **Check Logs:**
+
+  - Monitor the gNB logs for successful connection messages to the AMF.
+
+**Additional Tips:**
+
+- **Read Official Documentation:**
+
+  - Refer to the srsRAN and Open5GS official documentation to ensure configurations are correct.
+
+- **Avoid Common Mistakes:**
+
+  - Double-check IP addresses, port settings, and configuration parameters to prevent common errors.
 

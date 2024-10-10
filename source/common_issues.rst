@@ -104,3 +104,6 @@ General Tips
 
   - Ensure that your VMs have sufficient resources and that CPU performance settings are applied.
 
+- **Avoid Common Mistakes:**
+
+  - Double-check IP addresses, port settings, and configuration parameters to prevent common errors.

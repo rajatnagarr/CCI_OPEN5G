@@ -12,4 +12,3 @@ Open5GS and srsRAN Documentation
    gnb_configuration
    common_issues
    references
-

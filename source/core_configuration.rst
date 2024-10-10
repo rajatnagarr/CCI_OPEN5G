@@ -38,16 +38,50 @@ Install MongoDB
       sudo apt-get autoremove -y
       sudo rm -rf /etc/apt/trusted.gpg.d/mongodb-*
 
-2. **Install MongoDB 6.0:**
+2. **Add MongoDB Repository and Update:**
 
-   .. code-block:: bash
+   - Add the MongoDB GPG key and repository:
 
-      curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
-      echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-      sudo apt update
-      sudo apt install -y mongodb-org
-      sudo systemctl start mongod
-      sudo systemctl enable mongod
+     .. code-block:: bash
+
+        curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
+        echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+     - **Output:**
+
+       .. image:: _static/image10.png
+          :alt: Output of sudo apt update after adding MongoDB repository
+          :align: center
+          :width: 60%
+
+     - Update the package list:
+
+       .. code-block:: bash
+
+          sudo apt update
+
+3. **Install and Start MongoDB:**
+
+   - Install MongoDB:
+
+     .. code-block:: bash
+
+        sudo apt install -y mongodb-org
+
+   - Start and enable MongoDB service:
+
+     .. code-block:: bash
+
+        sudo systemctl start mongod
+        sudo systemctl enable mongod
+
+   - **Example Output:**
+
+     .. image:: _static/image3.png
+        :alt: Starting and enabling MongoDB service
+        :align: center
+        :width: 50%
+
+     *Figure: Starting the MongoDB service.*
 
 Set Up TUN Device
 -----------------
@@ -83,6 +117,15 @@ Clone and Build Open5GS
    .. code-block:: bash
 
       ./build/tests/registration/registration
+
+   - **Example Output:**
+
+     .. image:: _static/image15.png
+        :alt: Output of Open5GS test program
+        :align: center
+        :width: 60%
+
+     *Figure: Running Open5GS test program to verify the build.*
 
 4. **Install Open5GS:**
 
@@ -133,6 +176,16 @@ Post-Installation Configuration
 
       sudo iptables -t nat -A POSTROUTING -s 10.45.0.0/16 ! -o ogstun -j MASQUERADE
       sudo ip6tables -t nat -A POSTROUTING -s 2001:db8:cafe::/48 ! -o ogstun -j MASQUERADE
+      sudo iptables -I INPUT -i ogstun -j ACCEPT
+
+   - **Example Output:**
+
+     .. image:: _static/image17.png
+        :alt: Configuring NAT with iptables
+        :align: center
+        :width: 80%
+
+     *Figure: Configuring NAT rules using iptables.*
 
 Start Open5GS Core
 ------------------
@@ -149,16 +202,34 @@ Start Open5GS Core
 
       sudo ./5gc
 
-   - You should see logs indicating that the core network services are running.
+   - **Example Output:**
+
+     .. image:: _static/image28.png
+        :alt: Output of running the Open5GS core
+        :align: center
+        :width: 80%
+
+     *Figure: Open5GS core network services are running.*
 
 Add UE to User Database
 -----------------------
+
+**Option 1: Using Database Scripts**
 
 1. **Navigate to Database Scripts:**
 
    .. code-block:: bash
 
       cd ~/open5gs/misc/db
+
+   - **Example:**
+
+     .. image:: _static/image19.png
+        :alt: Navigating to Open5GS database scripts directory
+        :align: center
+        :width: 50%
+
+     *Figure: Navigating to the Open5GS database scripts directory.*
 
 2. **Edit the User Registration Script:**
 
@@ -167,6 +238,107 @@ Add UE to User Database
 3. **Add the srsUE Subscriber:**
 
    - Use the script to add a new subscriber with the `imsi`, `k`, `opc`, and other parameters matching your UE configuration.
+
+**Option 2: Using the Open5GS WebUI**
+
+1. **Install Prerequisites:**
+
+   .. code-block:: bash
+
+      sudo apt install -y ca-certificates curl gnupg
+      sudo mkdir -p /etc/apt/keyrings
+      curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+      NODE_MAJOR=20
+
+   - **Example Output:**
+
+     .. image:: _static/image5.png
+        :alt: Installing Node.js prerequisites
+        :align: center
+        :width: 50%
+
+     *Figure: Installing prerequisites for Node.js.*
+
+2. **Add Node.js Repository and Install Node.js:**
+
+   .. code-block:: bash
+
+      echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+      sudo apt update
+      sudo apt install -y nodejs
+
+3. **Install Open5GS WebUI:**
+
+   .. code-block:: bash
+
+      curl -fsSL https://open5gs.org/open5gs/assets/webui/install | sudo -E bash -
+
+   - **Output:**
+
+     .. image:: _static/image13.png
+        :alt: Installing Node.js
+        :align: center
+        :width: 60%
+
+     *Figure: Adding Node.js repository and installing Node.js.*
+
+4. **Start the WebUI:**
+
+   - The WebUI should start automatically. If not, you can start it manually.
+
+5. **Access the WebUI:**
+
+   - Open a web browser and navigate to `http://localhost:3000`.
+
+6. **Log In:**
+
+   - Use the default credentials:
+
+     - **Username:** admin
+     - **Password:** 1423
+
+7. **Add Subscriber Information:**
+
+   - Navigate to the Subscriber menu.
+   - Click the "+" button to add a new subscriber.
+   - Fill in the required information:
+
+     - **IMSI:** Must match the `imsi` in your UE configuration.
+     - **Security Context:** Enter `K`, `OPc`, and `AMF` values matching your UE.
+     - **APN:** Configure the Access Point Name as needed.
+
+   - Click "SAVE" to add the subscriber.
+
+   - **Example Screenshot:**
+
+     .. image:: _static/image9.png
+        :alt: Adding a subscriber in Open5GS WebUI
+        :align: center
+        :width: 60%
+
+     *Figure: Adding a new subscriber in the Open5GS WebUI.*
+
+   This process allows you to input subscriber details for your SIM cards, which will be stored in the Open5GS HSS (Home Subscriber Server) and UDR (Unified Data Repository) MongoDB database backend. If you're using test SIMs, the necessary details are usually printed on the card.
+
+8. **Verify Subscriber Addition:**
+
+   - Ensure the subscriber appears in the list with the correct details.
+
+**Note:** Using the WebUI simplifies subscriber management and allows for easy modification of subscriber data.
+
+Restart Open5GS Services
+------------------------
+
+After making changes to the configuration files or subscriber database, it's essential to restart the Open5GS services to apply the new settings.
+
+1. **Restart Open5GS Daemons:**
+
+   .. code-block:: bash
+
+      sudo systemctl restart open5gs-amfd
+      sudo systemctl restart open5gs-upfd
+
+   - This ensures that the updated configurations take effect.
 
 Configure Open5GS Settings
 --------------------------
@@ -179,23 +351,31 @@ Configure Open5GS Settings
 
         cd ~/open5gs/build/configs
 
-   - Open the `sample.yaml` file:
+     - Edit the `sample.yaml` file:
 
-     .. code-block:: bash
+       .. code-block:: bash
 
-        sudo vi sample.yaml
+          sudo vi sample.yaml
+
+       - **Example:**
+
+         .. image:: _static/image26.png
+            :alt: Editing the sample.yaml configuration file
+            :align: center
+            :width: 60%
+
+         *Figure: Editing the Open5GS `sample.yaml` configuration file.*
 
 2. **Update NGAP Server IP Address:**
 
    - Set the `ngap` server IP address to the machine IP address of your VM.
 
-   - Example:
+     - Example:
 
-     .. code-block:: yaml
+       .. code-block:: yaml
 
-        amf:
-          ngap:
-            - addr: <CORE_VM_IP_ADDRESS>
+          amf:
+            ngap:
+              - addr: <CORE_VM_IP_ADDRESS>
 
 3. **Save and Exit the Configuration File.**
-
